@@ -117,5 +117,5 @@ variable "jenkins_repo_url" {
 variable "app_repo_url" {
   description = "GitHub repo URL for App server provisioning"
   type        = string
-  default     = "https://github.com/JohnehChuks/Damolak_App_Terraform.git"
+  default     = "https://github.com/JohnehChuks/Damolak_App.git"
 }
