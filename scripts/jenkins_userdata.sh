@@ -2,7 +2,7 @@
 # =============================================================
 # scripts/jenkins_userdata.sh
 # Bootstrap: Git + Docker CE + Jenkins LTS + CloudWatch Agent
-# OS      : Ubuntu 24.04 LTS
+# OS      : Debian 12 (Bookworm)
 # Java    : OpenJDK 21 (Jenkins 2.555+ requires Java 21)
 #
 # Templated by Terraform templatefile():
@@ -18,7 +18,7 @@ echo " Damolak Jenkins Server — Bootstrap Start"
 echo " Timestamp: $(date)"
 echo "======================================================="
 
-# ── 1. Wait for apt lock to be released ──────────────────────
+# ── 1. Wait for apt lock ──────────────────────────────────────
 echo "[INFO] Waiting for apt lock..."
 while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
   echo "[INFO] Waiting for apt lock to be released..."
@@ -42,13 +42,13 @@ git --version
 # ── 4. Docker CE ─────────────────────────────────────────────
 echo "[INFO] Installing Docker CE..."
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+curl -fsSL https://download.docker.com/linux/debian/gpg \
   | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu \
+  https://download.docker.com/linux/debian \
   $(lsb_release -cs) stable" \
   | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
@@ -59,35 +59,33 @@ apt-get install -y \
 
 systemctl enable docker
 systemctl start docker
-usermod -aG docker ubuntu
+usermod -aG docker admin
 docker --version
 
 # ── 5. Java 21 ───────────────────────────────────────────────
 echo "[INFO] Installing Java 21..."
 apt-get install -y openjdk-21-jre
-update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java
+update-alternatives --set java \
+  /usr/lib/jvm/java-21-openjdk-amd64/bin/java
 java -version
 
 # ── 6. Jenkins LTS ───────────────────────────────────────────
 echo "[INFO] Installing Jenkins..."
 
-# Import Jenkins GPG key
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7198F4B714ABFC68
+apt-key adv \
+  --keyserver keyserver.ubuntu.com \
+  --recv-keys 7198F4B714ABFC68
 
-# Add Jenkins repo
 echo "deb https://pkg.jenkins.io/debian-stable binary/" \
   | tee /etc/apt/sources.list.d/jenkins.list > /dev/null
 
 apt-get update -y
 apt-get install -y jenkins
 
-# Add jenkins to docker group
 usermod -aG docker jenkins
-
 systemctl enable jenkins
 systemctl start jenkins
 
-# Wait for Jenkins to fully start
 echo "[INFO] Waiting for Jenkins to start..."
 sleep 60
 
@@ -95,7 +93,7 @@ echo "[INFO] Jenkins initial admin password:"
 cat /var/lib/jenkins/secrets/initialAdminPassword \
   || echo "[WARN] Password not yet available"
 
-# ── 7. Clone Jenkins Terraform Repo ──────────────────────────
+# ── 7. Clone Jenkins Repo ─────────────────────────────────────
 echo "[INFO] Cloning Jenkins Terraform repo..."
 mkdir -p /opt/${project_name}
 git clone ${jenkins_repo_url} /opt/${project_name}/jenkins-terraform \
@@ -103,7 +101,7 @@ git clone ${jenkins_repo_url} /opt/${project_name}/jenkins-terraform \
 
 # ── 8. CloudWatch Agent ───────────────────────────────────────
 echo "[INFO] Installing CloudWatch Agent..."
-wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb \
+wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb \
   -O /tmp/amazon-cloudwatch-agent.deb
 dpkg -i /tmp/amazon-cloudwatch-agent.deb
 

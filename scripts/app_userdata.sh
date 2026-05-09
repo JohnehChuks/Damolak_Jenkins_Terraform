@@ -1,7 +1,8 @@
 #!/bin/bash
 # =============================================================
 # scripts/app_userdata.sh
-# Bootstrap: Git + Docker CE + Apache2 (reverse proxy) + CloudWatch
+# Bootstrap: Git + Docker CE + Apache2 (reverse proxy)
+# OS      : Debian 12 (Bookworm)
 #
 # Templated by Terraform templatefile():
 #   ${app_repo_url}
@@ -16,28 +17,38 @@ echo " Damolak App Server — Bootstrap Start"
 echo " Timestamp: $(date)"
 echo "======================================================="
 
-# ── 1. System Updates ────────────────────────────────────────
-apt-get update -y
-apt-get upgrade -y
-apt-get install -y \
-  curl wget unzip ca-certificates gnupg \
-  lsb-release software-properties-common apt-transport-https
+# ── 1. Wait for apt lock ──────────────────────────────────────
+echo "[INFO] Waiting for apt lock..."
+while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+  echo "[INFO] Waiting for apt lock to be released..."
+  sleep 10
+done
 
-# ── 2. Git ───────────────────────────────────────────────────
+# ── 2. System Updates ────────────────────────────────────────
+echo "[INFO] Updating system..."
+apt-get update -y
+DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+apt-get install -y \
+  curl wget unzip gnupg \
+  lsb-release software-properties-common \
+  apt-transport-https ca-certificates
+
+# ── 3. Git ───────────────────────────────────────────────────
 echo "[INFO] Installing Git..."
 apt-get install -y git
 git --version
 
-# ── 3. Docker CE ─────────────────────────────────────────────
+# ── 4. Docker CE ─────────────────────────────────────────────
 echo "[INFO] Installing Docker CE..."
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+curl -fsSL https://download.docker.com/linux/debian/gpg \
   | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 chmod a+r /etc/apt/keyrings/docker.gpg
 
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" \
   | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 apt-get update -y
@@ -47,17 +58,14 @@ apt-get install -y \
 
 systemctl enable docker
 systemctl start docker
-usermod -aG docker ubuntu
+usermod -aG docker admin
 docker --version
 
-# ── 4. Apache2 — Install & Configure ─────────────────────────
+# ── 5. Apache2 ───────────────────────────────────────────────
 echo "[INFO] Installing Apache2..."
 apt-get install -y apache2
 
-a2enmod proxy
-a2enmod proxy_http
-a2enmod headers
-a2enmod rewrite
+a2enmod proxy proxy_http headers rewrite
 
 cat > /etc/apache2/sites-available/${project_name}-app.conf <<'APACHECONF'
 <VirtualHost *:80>
@@ -85,15 +93,15 @@ apache2ctl configtest
 systemctl enable apache2
 systemctl restart apache2
 
-# ── 5. Clone App Terraform Repo ───────────────────────────────
-echo "[INFO] Cloning App Terraform repo..."
+# ── 6. Clone App Repo ─────────────────────────────────────────
+echo "[INFO] Cloning App repo..."
 mkdir -p /opt/${project_name}
 git clone ${app_repo_url} /opt/${project_name}/app-terraform \
   || echo "[WARN] Clone failed — check repo access."
 
-# ── 6. CloudWatch Agent ───────────────────────────────────────
+# ── 7. CloudWatch Agent ───────────────────────────────────────
 echo "[INFO] Installing CloudWatch Agent..."
-wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb \
+wget -q https://s3.amazonaws.com/amazoncloudwatch-agent/debian/amd64/latest/amazon-cloudwatch-agent.deb \
   -O /tmp/amazon-cloudwatch-agent.deb
 dpkg -i /tmp/amazon-cloudwatch-agent.deb
 
