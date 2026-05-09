@@ -1,0 +1,24 @@
+# Terraform state — never commit
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+
+# Secrets — use environment variables instead
+terraform.tfvars
+*.tfvars
+*.tfvars.json
+
+# SSH private keys
+keys/
+*.pem
+*.ppk
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*.swo

@@ -1,0 +1,104 @@
+# =============================================================
+# Damolak_sg.tf — Security Groups
+# Project : Damolak DevOps Practical Challenge
+#
+#   damolak-jenkins-sg : ports 22, 80, 443, 8080
+#   damolak-app-sg     : ports 22, 80, 443
+# Both share the same VPC but are independent security groups.
+# =============================================================
+
+# ── Jenkins Security Group ────────────────────────────────────
+resource "aws_security_group" "damolak_jenkins_sg" {
+  name        = "damolak-jenkins-sg"
+  description = "Security group for the Damolak Jenkins CI/CD server"
+  vpc_id      = aws_vpc.damolak_vpc.id
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Jenkins Web UI"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name   = "${var.project_name}-jenkins-sg"
+    Server = "jenkins"
+  }
+}
+
+# ── App Server Security Group ─────────────────────────────────
+resource "aws_security_group" "damolak_app_sg" {
+  name        = "damolak-app-sg"
+  description = "Security group for the Damolak application server"
+  vpc_id      = aws_vpc.damolak_vpc.id
+
+  ingress {
+    description = "SSH"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTP"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "HTTPS"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "Allow all outbound"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name   = "${var.project_name}-app-sg"
+    Server = "app"
+  }
+}
