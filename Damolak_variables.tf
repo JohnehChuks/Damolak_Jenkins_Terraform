@@ -69,7 +69,7 @@ variable "app_instance_type" {
 }
 
 variable "ami_id" {
-  description = "Ubuntu 22.04 LTS AMI for eu-west-1"
+  description = "Debian 12 (Bookworm) AMI for eu-west-1"
   type        = string
   default     = "ami-0eb11ab33f229b26c"
 }
