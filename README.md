@@ -45,8 +45,6 @@
 
 # ✅ COMPLETE README.md FILE
 
-Paste everything below into your README.
-
 ---
 
 # Damolak — DevOps Challenge Infrastructure
