@@ -57,7 +57,7 @@ This repository provisions the complete AWS infrastructure required to run the D
 > ✅ Project successfully executed, automated, and fully operational
 
 ---
-Production-ready web App source: Mexant Financial HTML5 template.
+**Production-ready web App source:** Mexant Financial HTML5 template.
 
 ## Architecture Overview (eu-west-1 — Ireland)
 
