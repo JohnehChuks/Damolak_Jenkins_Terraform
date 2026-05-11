@@ -1,6 +1,7 @@
 # =============================================================
 # Damolak_ecr.tf — Elastic Container Registry
-# Project : Damolak DevOps Challenge
+# Project : Damolak DevOps Practical Challenge
+# Stores Docker images for Jenkins CI/CD deployments
 # =============================================================
 
 # ── ECR Repository ────────────────────────────────────────────
@@ -12,8 +13,14 @@ resource "aws_ecr_repository" "damolak_app" {
     scan_on_push = true
   }
 
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+
   tags = {
-    Name = "${var.project_name}-app-ecr"
+    Name        = "${var.project_name}-app-ecr"
+    Project     = var.project_name
+    Environment = var.environment
   }
 }
 
@@ -25,15 +32,44 @@ resource "aws_ecr_lifecycle_policy" "damolak_app" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep last 5 images"
+        description  = "Keep last 10 images"
+
         selection = {
           tagStatus   = "any"
           countType   = "imageCountMoreThan"
-          countNumber = 5
+          countNumber = 10
         }
+
         action = {
           type = "expire"
         }
+      }
+    ]
+  })
+}
+
+# ── Optional Repository Policy (same account access) ─────────
+resource "aws_ecr_repository_policy" "damolak_app" {
+  repository = aws_ecr_repository.damolak_app.name
+
+  policy = jsonencode({
+    Version = "2008-10-17"
+    Statement = [
+      {
+        Sid    = "AllowSameAccountPullPush"
+        Effect = "Allow"
+
+        Principal = "*"
+
+        Action = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:PutImage",
+          "ecr:InitiateLayerUpload",
+          "ecr:UploadLayerPart",
+          "ecr:CompleteLayerUpload"
+        ]
       }
     ]
   })

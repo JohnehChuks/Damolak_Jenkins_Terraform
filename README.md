@@ -1,71 +1,129 @@
-**[Damalok_Jenkins_Terraform](https://github.com/JohnehChuks/Damolak_Jenkins_Terraform?utm_source=chatgpt.com)**.
-
-## ✅ Brief Steps & Process Used to Achieve This Project
-
-1. **Designed the Architecture**
-
-   * Planned a VPC, public subnet, security groups, IAM roles, and two EC2 servers (Jenkins & App) in **Amazon Web Services** eu-west-1.
-   * Assigned Elastic IPs for stable access.
-   * Planned S3 + DynamoDB for Terraform remote state.
-
-2. **Provisioned Infrastructure with Terraform**
-
-   * Wrote modular Terraform files to create VPC, SG, IAM, EC2, ECR, CloudWatch.
-   * Used `user_data` scripts to automatically install Git, Docker, Jenkins, Apache2, and CloudWatch agent.
-   * Bootstrapped remote state and deployed with `terraform apply`.
-
-3. **Prepared the Application**
-
-   * Downloaded a ready HTML template and made slight edits.
-   * Created a **Dockerfile** to serve the app using Nginx.
-
-4. **Built the CI/CD Pipeline**
-
-   * Wrote a **Jenkinsfile**.
-   * Pipeline stages: Clone → Build Docker image → Test → Push to ECR → Deploy on App server.
-
-5. **Connected Everything**
-
-   * Jenkins server builds and pushes image to ECR.
-   * App server pulls image and runs container.
-   * Apache2 reverse proxies port 80 to container port 3000.
-
-6. **Monitoring & Logging**
-
-   * Configured CloudWatch log groups and CPU alarms for both servers.
-
-7. **Documentation & Structure**
-
-   * Organized into two professional GitHub repositories:
-
-     * Infrastructure repo
-     * Application repo
-
----
-
-# ✅ COMPLETE README.md FILE
-
-Paste everything below into your README.
-
----
-
+````md
 # Damolak — DevOps Challenge Infrastructure
 
 > **Production-Ready Application Deployment** using Terraform · Docker · Jenkins · AWS EC2 · ECR · S3 · CloudWatch · IAM
 
-This repository provisions the complete AWS infrastructure required to run the Damolak App using **Infrastructure as Code (Terraform)** and integrates with the CI/CD pipeline defined in the **[Damalok_App](https://github.com/JohnehChuks/Damolak_App?utm_source=chatgpt.com)** repository.
+This repository provisions the complete AWS infrastructure required to run the Damolak App using **Infrastructure as Code (Terraform)** and integrates with the CI/CD pipeline defined in the **Damalok_App** repository.
 
 > ✅ Project successfully executed, automated, and fully operational
 
+> Production-ready web application source: **Mexant Financial HTML5 Template**
+
 ---
 
-## Architecture Overview (eu-west-1 — Ireland)
+# ✅ Brief Steps & Process Used to Achieve This Project
 
+## 1. Designed the Architecture
+
+- Planned a custom VPC in AWS eu-west-1 (Ireland)
+- Created public subnet, route table, internet gateway
+- Designed two EC2 instances:
+  - Jenkins Server
+  - Application Server
+- Attached Elastic IPs for stable public access
+- Planned S3 + DynamoDB backend for Terraform remote state
+
+---
+
+## 2. Provisioned Infrastructure with Terraform
+
+Created modular Terraform files for:
+
+- VPC
+- Security Groups
+- IAM Roles
+- EC2 Instances
+- Elastic IPs
+- ECR Registry
+- CloudWatch Monitoring
+- Terraform Backend
+
+Used `user_data` scripts to automatically install:
+
+- Git
+- Docker
+- Jenkins
+- Apache2
+- CloudWatch Agent
+
+Bootstrapped and deployed using:
+
+```bash
+terraform apply
+````
+
+---
+
+## 3. Prepared the Application
+
+* Downloaded ready HTML template
+* Customized content and branding
+* Created Dockerfile
+* Used Nginx to serve the website
+
+---
+
+## 4. Built the CI/CD Pipeline
+
+Created Jenkins pipeline.
+
+### Stages:
+
+```text
+Clone → Build → Test → Push to ECR → Deploy
 ```
+
+---
+
+## 5. Connected Everything
+
+* Jenkins server builds Docker image
+* Pushes image to Amazon ECR
+* App server pulls latest image
+* Runs container
+* Apache2 reverse proxies:
+
+```text
+Port 80 → Container Port 3000
+```
+
+---
+
+## 6. Monitoring & Logging
+
+Configured:
+
+* CloudWatch Log Groups
+* CPU Alarms
+* Userdata Logs
+* Apache Logs
+* Jenkins Logs
+
+---
+
+## 7. Documentation & Structure
+
+Organized professionally into two GitHub repositories:
+
+### Infrastructure Repo
+
+`Damalok_Jenkins_Terraform`
+
+### Application Repo
+
+`Damalok_App`
+
+---
+
+# Architecture Overview (eu-west-1 — Ireland)
+
+```text
 Damalok VPC (10.0.0.0/16)
 └── Public Subnet (10.0.1.0/24)
+
     ├── Jenkins Server (52.50.38.231)
     │   └── Git + Docker + Jenkins + CloudWatch
+
     └── App Server (54.77.250.195)
         └── Git + Docker + Apache2 → Docker (:3000)
 
@@ -74,27 +132,31 @@ ECR → Docker Images
 CloudWatch → Logs & CPU Alarms
 ```
 
-Architecture and Terraform structures are illustrated in:
+---
 
-* `assets/damalok_architecture.png`
-* `assets/damalok_structures.png`
+# Architecture Files
+
+Illustrated in:
+
+* `app structural design.pdf`
+* `app structural design.mht`
 
 ---
 
-## Live URLs & Repositories
+# Live URLs & Repositories
 
-| Resource                      | Link                                                                                                         |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Jenkins Dashboard             | [http://52.50.38.231:8080](http://52.50.38.231:8080)                                                         |
-| Live Application              | [http://54.77.250.195](http://54.77.250.195)                                                                 |
-| Terraform Infrastructure Repo | [Damalok_Jenkins_Terraform](https://github.com/JohnehChuks/Damolak_Jenkins_Terraform?utm_source=chatgpt.com) |
-| Application & CI/CD Repo      | [Damalok_App](https://github.com/JohnehChuks/Damolak_App?utm_source=chatgpt.com)                             |
+| Resource                      | Link                                                 |
+| ----------------------------- | ---------------------------------------------------- |
+| Jenkins Dashboard             | [http://52.50.38.231:8080](http://52.50.38.231:8080) |
+| Live Application              | [http://54.77.250.195](http://54.77.250.195)         |
+| Terraform Infrastructure Repo | Damalok_Jenkins_Terraform                            |
+| Application Repo              | Damalok_App                                          |
 
 ---
 
-## Terraform File Structure
+# Terraform File Structure
 
-```
+```text
 damolak-terraform/
 ├── main.tf
 ├── Damolak_variables.tf
@@ -114,34 +176,35 @@ damolak-terraform/
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-| Tool              | Purpose                     |
-| ----------------- | --------------------------- |
-| Terraform         | Infrastructure provisioning |
-| AWS EC2           | Jenkins and App servers     |
-| AWS ECR           | Docker image registry       |
-| AWS S3 + DynamoDB | Remote state & locking      |
-| AWS CloudWatch    | Monitoring and logging      |
-| AWS IAM           | Access control              |
-| Jenkins           | CI/CD automation            |
-| Docker            | Containerization            |
-| Nginx             | Web server in container     |
-| Apache2           | Reverse proxy               |
-| Git & GitHub      | Version control             |
+| Tool       | Purpose                     |
+| ---------- | --------------------------- |
+| Terraform  | Infrastructure provisioning |
+| AWS EC2    | Jenkins & App servers       |
+| AWS ECR    | Docker image registry       |
+| AWS S3     | Terraform state storage     |
+| DynamoDB   | Terraform locking           |
+| CloudWatch | Monitoring & logs           |
+| IAM        | Access control              |
+| Jenkins    | CI/CD automation            |
+| Docker     | Containerization            |
+| Nginx      | Web server                  |
+| Apache2    | Reverse proxy               |
+| GitHub     | Source control              |
 
 ---
 
-## Deployment Steps
+# Deployment Steps
 
-### Export Credentials
+## Export Credentials
 
 ```bash
 export TF_VAR_aws_access_key=$Damolak_key
 export TF_VAR_aws_secret_key=$Damolak_secret_key
 ```
 
-### Initialize & Bootstrap State
+## Initialize Backend
 
 ```bash
 terraform init
@@ -149,14 +212,14 @@ terraform apply -target=aws_s3_bucket.terraform_state -target=aws_dynamodb_table
 terraform init -migrate-state
 ```
 
-### Deploy Infrastructure
+## Deploy Infrastructure
 
 ```bash
 terraform plan -out=damolak.tfplan
 terraform apply damolak.tfplan
 ```
 
-### Access Outputs
+## View Outputs
 
 ```bash
 terraform output
@@ -164,7 +227,7 @@ terraform output
 
 ---
 
-## CI/CD Pipeline Stages
+# CI/CD Pipeline Stages
 
 | Stage  | Action                          |
 | ------ | ------------------------------- |
@@ -176,34 +239,41 @@ terraform output
 
 ---
 
-## Monitoring (CloudWatch)
+# Monitoring (CloudWatch)
 
 * Jenkins CPU Alarm
 * App CPU Alarm
-* Log groups for Jenkins, Apache, and user data scripts
+* Jenkins Logs
+* Apache Logs
+* userdata Logs
 
 ---
 
-## Design Decisions
+# Design Decisions
 
 | Decision             | Reason                      |
 | -------------------- | --------------------------- |
-| Separate servers     | Production-style separation |
+| Separate Servers     | Better production structure |
 | Elastic IPs          | Stable public access        |
 | S3 + DynamoDB        | Safe remote state           |
-| Apache reverse proxy | Clean container exposure    |
-| ECR lifecycle        | Reduce storage cost         |
+| Apache Reverse Proxy | Clean exposure              |
+| ECR Lifecycle Policy | Cost savings                |
 
 ---
 
-## Outcome
+# Outcome
 
 This project demonstrates real-world DevOps practices:
 
 * Infrastructure as Code
-* CI/CD automation
-* Containerized deployment
-* Monitoring and logging
-* Professional architecture and repository structure
+* CI/CD Automation
+* Dockerized Deployment
+* AWS Infrastructure
+* Monitoring & Logging
+* Clean Architecture
+* Professional Repository Structure
 
-> ✅ A complete, automated, production-style DevOps environment built from scratch
+> ✅ A complete, automated, production-style DevOps environment built from scratch.
+
+```
+```

@@ -7,7 +7,9 @@
 # Both share the same VPC but are independent security groups.
 # =============================================================
 
-# ── Jenkins Security Group ────────────────────────────────────
+# =============================================================
+# Jenkins Security Group
+# =============================================================
 resource "aws_security_group" "damolak_jenkins_sg" {
   name        = "damolak-jenkins-sg"
   description = "Security group for the Damolak Jenkins CI/CD server"
@@ -38,7 +40,7 @@ resource "aws_security_group" "damolak_jenkins_sg" {
   }
 
   ingress {
-    description = "Jenkins Web UI"
+    description = "Jenkins UI"
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
@@ -46,7 +48,7 @@ resource "aws_security_group" "damolak_jenkins_sg" {
   }
 
   egress {
-    description = "Allow all outbound"
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -54,12 +56,15 @@ resource "aws_security_group" "damolak_jenkins_sg" {
   }
 
   tags = {
-    Name   = "${var.project_name}-jenkins-sg"
-    Server = "jenkins"
+    Name        = "${var.project_name}-jenkins-sg"
+    Environment = var.environment
+    Server      = "jenkins"
   }
 }
 
-# ── App Server Security Group ─────────────────────────────────
+# =============================================================
+# App Server Security Group
+# =============================================================
 resource "aws_security_group" "damolak_app_sg" {
   name        = "damolak-app-sg"
   description = "Security group for the Damolak application server"
@@ -90,7 +95,7 @@ resource "aws_security_group" "damolak_app_sg" {
   }
 
   egress {
-    description = "Allow all outbound"
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -98,7 +103,8 @@ resource "aws_security_group" "damolak_app_sg" {
   }
 
   tags = {
-    Name   = "${var.project_name}-app-sg"
-    Server = "app"
+    Name        = "${var.project_name}-app-sg"
+    Environment = var.environment
+    Server      = "app"
   }
 }

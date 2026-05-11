@@ -15,7 +15,7 @@ terraform {
     }
   }
 
-backend "s3" {
+  backend "s3" {
     bucket         = "damolak-jc-terraform-state"
     key            = "damolak/terraform.tfstate"
     region         = "eu-west-1"

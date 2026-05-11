@@ -3,16 +3,21 @@
 # Project : Damolak DevOps Practical Challenge
 # =============================================================
 
-# ── Provider / Auth ───────────────────────────────────────────
+# =============================================================
+# PROVIDER / AUTH
+# =============================================================
+
 variable "aws_access_key" {
-  description = "AWS Access Key ID (exported as Damolak_key)"
+  description = "AWS Access Key ID (optional if using aws configure / IAM role)"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
 variable "aws_secret_key" {
-  description = "AWS Secret Access Key (exported as Damolak_secret_key)"
+  description = "AWS Secret Access Key (optional if using aws configure / IAM role)"
   type        = string
+  default     = ""
   sensitive   = true
 }
 
@@ -22,20 +27,41 @@ variable "aws_region" {
   default     = "eu-west-1"
 }
 
-# ── Project Meta ──────────────────────────────────────────────
+# =============================================================
+# PROJECT META
+# =============================================================
+
 variable "project_name" {
-  description = "Short project identifier used in resource names and tags"
+  description = "Short project identifier used in names and tags"
   type        = string
-  default     = "damolak"
+  default     = "damolak-jc"
 }
 
 variable "environment" {
   description = "Deployment environment (dev | staging | prod)"
   type        = string
   default     = "dev"
+
+  validation {
+    condition     = contains(["dev", "staging", "prod"], var.environment)
+    error_message = "Environment must be dev, staging, or prod."
+  }
 }
 
-# ── VPC ───────────────────────────────────────────────────────
+# =============================================================
+# ALERTING
+# =============================================================
+
+variable "alert_email" {
+  description = "Email address for CloudWatch alarm notifications"
+  type        = string
+  default     = "your-email@example.com"
+}
+
+# =============================================================
+# NETWORKING
+# =============================================================
+
 variable "vpc_cidr" {
   description = "CIDR block for the shared VPC"
   type        = string
@@ -49,65 +75,95 @@ variable "public_subnet_cidr" {
 }
 
 variable "availability_zone" {
-  description = "Availability zone for the subnets"
+  description = "Availability zone for EC2 subnet"
   type        = string
   default     = "eu-west-1a"
 }
 
-# ── EC2 — Jenkins ─────────────────────────────────────────────
+# =============================================================
+# PRIVATE IPS
+# =============================================================
+
+variable "jenkins_private_ip" {
+  description = "Fixed private IP for Jenkins server"
+  type        = string
+  default     = "10.0.1.10"
+}
+
+variable "app_private_ip" {
+  description = "Fixed private IP for App server"
+  type        = string
+  default     = "10.0.1.100"
+}
+
+# =============================================================
+# EC2 — JENKINS
+# =============================================================
+
 variable "jenkins_instance_type" {
   description = "EC2 instance type for Jenkins server"
   type        = string
   default     = "t3.micro"
 }
 
-# ── EC2 — App Server ─────────────────────────────────────────
-variable "app_instance_type" {
-  description = "EC2 instance type for App server"
-  type        = string
-  default     = "t2.micro"
-}
-
-variable "ami_id" {
-  description = "Debian 12 (Bookworm) AMI for eu-west-1"
-  type        = string
-  default     = "ami-0eb11ab33f229b26c"
-}
-
-# ── EC2 — Jenkins ─────────────────────────────────────────────
 variable "jenkins_server_name" {
-  description = "Name tag for the Jenkins EC2 instance"
+  description = "Name tag for Jenkins EC2 instance"
   type        = string
   default     = "damolak-jenkins-server"
 }
 
 variable "jenkins_keypair_name" {
-  description = "AWS key pair name for the Jenkins server"
+  description = "AWS key pair name for Jenkins server"
   type        = string
   default     = "damolak_jenkins_keypair"
 }
 
-# ── EC2 — App Server ─────────────────────────────────────────
+# =============================================================
+# EC2 — APP SERVER
+# =============================================================
+
+variable "app_instance_type" {
+  description = "EC2 instance type for App server"
+  type        = string
+  default     = "t3.micro"
+}
+
 variable "app_server_name" {
-  description = "Name tag for the application EC2 instance"
+  description = "Name tag for App EC2 instance"
   type        = string
   default     = "damolak-app-server"
 }
 
 variable "app_keypair_name" {
-  description = "AWS key pair name for the App server"
+  description = "AWS key pair name for App server"
   type        = string
   default     = "damolak_app_keypair"
 }
 
-# ── IAM ───────────────────────────────────────────────────────
+# =============================================================
+# AMI
+# =============================================================
+
+variable "ami_id" {
+  description = "Ubuntu 24.04 LTS AMI for eu-west-1"
+  type        = string
+  default     = "ami-0d64bb532e0502c46"
+}
+
+# =============================================================
+# IAM
+# =============================================================
+
 variable "iam_role_name" {
-  description = "IAM role name shared by both EC2 instances"
+  description = "IAM role shared by both EC2 instances"
   type        = string
   default     = "damolak-ec2-role"
 }
 
-# ── GitHub Repos ─────────────────────────────────────────────
+# =============================================================
+# GITHUB REPOSITORIES
+# =============================================================
+
 variable "jenkins_repo_url" {
   description = "GitHub repo URL for Jenkins server provisioning"
   type        = string
