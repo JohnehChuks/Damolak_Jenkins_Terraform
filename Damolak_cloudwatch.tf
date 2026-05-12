@@ -156,6 +156,11 @@ resource "aws_cloudwatch_metric_alarm" "jenkins_status_alarm" {
   ok_actions                = [aws_sns_topic.damolak_alerts.arn]
   insufficient_data_actions = []
   treat_missing_data        = "breaching"
+
+  tags = {
+    Name   = "${var.project_name}-jenkins-status-alarm"
+    Server = "jenkins"
+  }
 }
 
 # =============================================================
@@ -180,4 +185,39 @@ resource "aws_cloudwatch_metric_alarm" "app_status_alarm" {
   ok_actions                = [aws_sns_topic.damolak_alerts.arn]
   insufficient_data_actions = []
   treat_missing_data        = "breaching"
+
+  tags = {
+    Name   = "${var.project_name}-app-status-alarm"
+    Server = "app"
+  }
+}
+
+# =============================================================
+# APP NETWORK / WEB TRAFFIC LOW ALARM
+# Helps indicate possible website outage or no traffic
+# =============================================================
+resource "aws_cloudwatch_metric_alarm" "app_network_low_alarm" {
+  alarm_name          = "${var.project_name}-app-network-low"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 3
+  metric_name         = "NetworkIn"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 1000
+  alarm_description   = "App server receiving unusually low traffic"
+
+  dimensions = {
+    InstanceId = aws_instance.damolak_app_server.id
+  }
+
+  alarm_actions             = [aws_sns_topic.damolak_alerts.arn]
+  ok_actions                = [aws_sns_topic.damolak_alerts.arn]
+  insufficient_data_actions = []
+  treat_missing_data        = "notBreaching"
+
+  tags = {
+    Name   = "${var.project_name}-app-network-alarm"
+    Server = "app"
+  }
 }
