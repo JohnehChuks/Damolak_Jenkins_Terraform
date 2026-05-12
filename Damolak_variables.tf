@@ -103,7 +103,7 @@ variable "app_private_ip" {
 variable "jenkins_instance_type" {
   description = "EC2 instance type for Jenkins server"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "jenkins_server_name" {
@@ -125,7 +125,7 @@ variable "jenkins_keypair_name" {
 variable "app_instance_type" {
   description = "EC2 instance type for App server"
   type        = string
-  default     = "t3.micro"
+  default     = "t3.medium"
 }
 
 variable "app_server_name" {
